@@ -36,6 +36,9 @@ python train.py --dataroot ./datasets/cityscapes --name example_run --model unpa
 python test.py --dataroot ./datasets/cityscapes --name example_run --model unpaired_revgan
 ```
 
+The test results will be saved to ./results/example_run/test_latest/index.html
+
+
 ## Prerequisites
 - Linux or macOS
 - Python 2 or 3
