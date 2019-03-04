@@ -12,8 +12,9 @@ University of Amsterdam, arXiv pre-print, 2019 <br>
 ```
 @inproceedings{vanderOuderaa2019revgan,
 title={Reversible GANs for Memory-efficient Image-to-Image Translation},
-author={van der Ouderaa, Worrall, Daniel E},
+author={van der Ouderaa, Tycho FA and Worrall, Daniel E},
 booktitle={arXiv},
+year={2019}
 }
 ```
 
