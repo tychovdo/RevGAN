@@ -38,6 +38,8 @@ bash ./datasets/download_cyclegan_dataset.sh cityscapes
 python train.py --dataroot ./datasets/cityscapes --name example_run --model unpaired_revgan
 ```
 
+During training, results will be saved to `./checkpoints/example_run/web/index.html`
+
 ### Testing
 
 - Test a model:
