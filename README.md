@@ -60,4 +60,4 @@ The test results will be saved to `./results/example_run/test_latest/index.html`
 
 We grateful to the Diagnostic Image Analysis Group (DIAG) of the Radboud University Medical Center, and in particular Prof. Dr. Bram van Ginneken for his collaboration on this project. We also thank the Netherlands Organisation for Scientific Research (NWO) for supporting this research and providing computational resources.
 
-This  code  extends  the  image-to-image  translation  frame-work from [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) with several reversible models in 2D and 3D. The reversible blocks are implemented using a modified version of [MemCNN](https://github.com/silvandeleemput/memcnn).
+This  code relies heavily on the  image-to-image  translation  framework from [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and extends the framework with paired and unpaired reversible models in 2D and 3D. The reversible blocks are implemented using a modified version of [MemCNN](https://github.com/silvandeleemput/memcnn).
