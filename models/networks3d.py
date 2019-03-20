@@ -167,19 +167,16 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     return net
 
 
-def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[], deconv='transposed', output_tanh=False, n_downsampling=2):
+def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', use_naive=False, init_type='normal', init_gain=0.02, gpu_ids=[], n_downsampling=2):
     netG = None
     norm_layer = get_norm_layer(norm_type=norm)
 
     if which_model_netG.startswith('srcnn_'):
         depth = int(re.findall(r'\d+', which_model_netG)[0])
         netG = SrcnnGenerator3d(input_nc, output_nc, depth, ngf)
-    elif which_model_netG.startswith('edsr_'):
-        depth = int(re.findall(r'\d+', which_model_netG)[0])
-        netG = EdsrGenerator3d(input_nc, output_nc, depth, ngf)
     elif which_model_netG.startswith('edsrF_'):
         depth = int(re.findall(r'\d+', which_model_netG)[0])
-        netG = EdsrFGenerator3d(input_nc, output_nc, depth, ngf)
+        netG = EdsrFGenerator3d(input_nc, output_nc, depth, ngf, use_naive)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % which_model_netG)
     return init_net(netG, init_type, init_gain, gpu_ids)
@@ -261,11 +258,16 @@ class ThickBlocknaive3d(nn.Module):
 
 
 class ThickBlock3d(nn.Module):
-    def __init__(self, dim, use_bias):
+    def __init__(self, dim, use_bias, use_naive=False):
         super(ThickBlock3d, self).__init__()
-        self.F = self.build_conv_block(dim // 2, True)
-        self.G = self.build_conv_block(dim // 2, True)
-        self.rev_block = ReversibleBlock(self.F, self.G, 'additive')
+        F = self.build_conv_block(dim // 2, True)
+        G = self.build_conv_block(dim // 2, True)
+        if use_naive:
+            self.rev_block = ReversibleBlock(F, G, 'additive',
+                                             keep_input=True, implementation_fwd=2, implementation_bwd=2)
+        else:
+            self.rev_block = ReversibleBlock(F, G, 'additive')
+
 
     def build_conv_block(self, dim, use_bias):
         conv_block = []
@@ -286,37 +288,18 @@ class ThickBlock3d(nn.Module):
     def inverse(self, x):
         return self.rev_block.inverse(x)
 
-class ThinBlock3d(nn.Module):
-    def __init__(self, dim, use_bias):
-        super(ThinBlock3d, self).__init__()
-        self.F = self.build_conv_block(dim // 2, True)
-        self.G = self.build_conv_block(dim // 2, True)
-        self.rev_block = ReversibleBlock(self.F, self.G, 'additive')
-
-    def build_conv_block(self, dim, use_bias):
-        conv_block = []
-        conv_block += [nn.ReplicationPad3d(1)]
-        conv_block += [nn.Conv3d(dim, dim, kernel_size=3, padding=0, bias=use_bias)]
-        conv_block += [nn.ReLU(True)]
-        conv_block += [nn.ReplicationPad3d(1)]
-        conv_block += [ZeroInit(dim, dim, kernel_size=3, padding=0, bias=use_bias)]
-
-
-        return nn.Sequential(*conv_block)
-
-    def forward(self, x):
-        return self.rev_block(x)
-
-    def inverse(self, x):
-        return self.rev_block.inverse(x)
 
 
 class RevBlock3d(nn.Module):
-    def __init__(self, dim, use_bias, norm_layer):
+    def __init__(self, dim, use_bias, norm_layer, use_naive):
         super(RevBlock3d, self).__init__()
         self.F = self.build_conv_block(dim // 2, True, norm_layer)
         self.G = self.build_conv_block(dim // 2, True, norm_layer)
-        self.rev_block = ReversibleBlock(self.F, self.G, 'additive')
+        if use_naive:
+            self.rev_block = ReversibleBlock(F, G, 'additive',
+                                             keep_input=True, implementation_fwd=2, implementation_bwd=2)
+        else:
+            self.rev_block = ReversibleBlock(F, G, 'additive')
 
     def build_conv_block(self, dim, use_bias, norm_layer):
         conv_block = []
@@ -395,8 +378,7 @@ def pixel_shuffle_3d(input, upscale_factor):
 
 
 class EdsrFGenerator3d(nn.Module):
-    def __init__(self, input_nc, output_nc, depth, ngf=64, deconv='nearest',
-                 use_dropout=False):
+    def __init__(self, input_nc, output_nc, depth, ngf=64, use_naive=False):
         super(EdsrFGenerator3d, self).__init__()
 
         use_bias = True
@@ -421,7 +403,7 @@ class EdsrFGenerator3d(nn.Module):
 
         core = []
         for _ in range(depth):
-            core += [ThickBlock3d(ngf * 2, use_bias)]
+            core += [ThickBlock3d(ngf * 2, use_bias, use_naive)]
 
         upconv_ab = [nn.ConvTranspose3d(ngf * 2, ngf,
                                         kernel_size=3, stride=2,
@@ -431,7 +413,7 @@ class EdsrFGenerator3d(nn.Module):
                      nn.ReLU(True),
                      nn.ReplicationPad3d(2),
                      nn.Conv3d(ngf, output_nc, kernel_size=5, padding=0),
-		             nn.Tanh()]
+                     nn.Tanh()]
         upconv_ba = [nn.ConvTranspose3d(ngf * 2, ngf,
                                         kernel_size=3, stride=2,
                                         padding=1, output_padding=1,
@@ -440,7 +422,7 @@ class EdsrFGenerator3d(nn.Module):
                      nn.ReLU(True),
                      nn.ReplicationPad3d(2),
                      nn.Conv3d(ngf, output_nc, kernel_size=5, padding=0),
-		             nn.Tanh()]
+                     nn.Tanh()]
 
         self.downconv_ab = nn.Sequential(*downconv_ab)
         self.downconv_ba = nn.Sequential(*downconv_ba)
@@ -465,8 +447,7 @@ class EdsrFGenerator3d(nn.Module):
 
 
 class SrcnnGenerator3d(nn.Module):
-    def __init__(self, input_nc, output_nc, depth, ngf=64, deconv='nearest',
-                 norm_layer=nn.BatchNorm3d, use_dropout=False):
+    def __init__(self, input_nc, output_nc, depth, ngf=64, norm_layer=nn.BatchNorm3d, use_naive=False):
         super(SrcnnGenerator3d, self).__init__()
 
         use_bias = True
@@ -479,7 +460,7 @@ class SrcnnGenerator3d(nn.Module):
 
         core = []
         for _ in range(depth):
-            core += [RevBlock3d(ngf, use_bias, norm_layer)]
+            core += [RevBlock3d(ngf, use_bias, norm_layer, use_naive)]
 
         upconv_ab = [nn.Conv3d(ngf, output_nc, kernel_size=1,
                             stride=1, padding=0, bias=use_bias)]
@@ -564,11 +545,8 @@ class UnetSkipConnectionBlock(nn.Module):
                                         padding=1, bias=use_bias)
             down = [downrelu, downconv, downnorm]
             up = [uprelu, upconv, upnorm]
-
-            if use_dropout:
-                model = down + [submodule] + up + [nn.Dropout(0.5)]
-            else:
-                model = down + [submodule] + up
+            
+            model = down + [submodule] + up
 
         self.model = nn.Sequential(*model)
 

@@ -18,7 +18,7 @@ use_context_mans = int(torch.__version__[0]) * 100 + int(torch.__version__[2]) -
 
 
 class ReversibleBlock(nn.Module):
-    def __init__(self, Fm, Gm=None, coupling='additive', keep_input=True, implementation_fwd=0, implementation_bwd=0):
+    def __init__(self, Fm, Gm=None, coupling='additive', keep_input=False, implementation_fwd=0, implementation_bwd=0):
         """The ReversibleBlock
 
         Parameters

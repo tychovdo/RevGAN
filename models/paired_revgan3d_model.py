@@ -13,8 +13,6 @@ class PairedRevGAN3dModel(BaseModel):
 
     @staticmethod
     def modify_commandline_options(parser, is_train=True):
-        # default CycleGAN did not use dropout
-        parser.set_defaults(no_dropout=True)
         parser.set_defaults(pool_size=0, no_lsgan=True, norm='instance')
         parser.set_defaults(dataset_mode='aligned')
         if is_train:
@@ -42,9 +40,8 @@ class PairedRevGAN3dModel(BaseModel):
         # The naming conversion is different from those used in the paper
         # Code (paper): G_A (G), G_B (F), D_A (D_Y), D_B (D_X)
         self.netG = networks3d.define_G(opt.input_nc, opt.output_nc,
-                                        opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
-                                        opt.init_type, opt.init_gain, self.gpu_ids, opt.deconv,
-                                        output_tanh = not opt.no_output_tanh,
+                                        opt.ngf, opt.which_model_netG, opt.norm, opt.use_naive,
+                                        opt.init_type, opt.init_gain, self.gpu_ids,
                                         n_downsampling=opt.n_downsampling)
 
         self.netG_A = lambda x: self.netG(x)

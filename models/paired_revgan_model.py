@@ -13,10 +13,8 @@ class PairedRevGANModel(BaseModel):
 
     @staticmethod
     def modify_commandline_options(parser, is_train=True):
-        # default CycleGAN did not use dropout
         parser.set_defaults(pool_size=0, no_lsgan=True, norm='instance')
         parser.set_defaults(dataset_mode='aligned')
-        parser.add_argument('--ode', action='store_true', help='use ode')
         if is_train:
             parser.add_argument('--lambda_L1', type=float, default=100.0, help='weight for L1 loss')
 
@@ -42,24 +40,25 @@ class PairedRevGANModel(BaseModel):
         # The naming conversion is different from those used in the paper
         # Code (paper): G_A (G), G_B (F), D_A (D_Y), D_B (D_X)
         self.netG_A_enc = networks.define_G_enc(opt.input_nc, opt.output_nc,
-                                                opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
+                                                opt.ngf, opt.which_model_netG, opt.norm,
                                                 opt.init_type, opt.init_gain, self.gpu_ids, n_downsampling=opt.n_downsampling)
 
         self.netG_core = networks.define_G_core(opt.input_nc, opt.output_nc,
-                                                opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
-                                                opt.init_type, opt.init_gain, self.gpu_ids, invertible=True, ode=opt.ode, n_downsampling=opt.n_downsampling,
+                                                opt.ngf, opt.which_model_netG, opt.norm, opt.use_naive,
+                                                opt.init_type, opt.init_gain, self.gpu_ids,
+                                                invertible=True, n_downsampling=opt.n_downsampling,
                                                 coupling=opt.coupling)
 
         self.netG_A_dec = networks.define_G_dec(opt.input_nc, opt.output_nc,
-                                                opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
+                                                opt.ngf, opt.which_model_netG, opt.norm,
                                                 opt.init_type, opt.init_gain, self.gpu_ids, not opt.no_output_tanh, n_downsampling=opt.n_downsampling)
 
         self.netG_B_enc = networks.define_G_enc(opt.output_nc, opt.input_nc,
-                                                opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
+                                                opt.ngf, opt.which_model_netG, opt.norm, 
                                                 opt.init_type, opt.init_gain, self.gpu_ids, n_downsampling=opt.n_downsampling)
 
         self.netG_B_dec = networks.define_G_dec(opt.output_nc, opt.input_nc,
-                                                opt.ngf, opt.which_model_netG, opt.norm, not opt.no_dropout,
+                                                opt.ngf, opt.which_model_netG, opt.norm, 
                                                 opt.init_type, opt.init_gain, self.gpu_ids, not opt.no_output_tanh, n_downsampling=opt.n_downsampling)
 
         self.netG_A = lambda x: self.netG_A_dec(self.netG_core(self.netG_A_enc(x)))
