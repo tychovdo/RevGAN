@@ -168,13 +168,13 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     return net
 
 
-def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', init_type='normal', init_gain=0.02, gpu_ids=[], output_tanh=True, n_downsampling=2):
+def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[], output_tanh=True, n_downsampling=2):
     netG = None
     norm_layer = get_norm_layer(norm_type=norm)
 
     if which_model_netG.startswith('resnet_') and which_model_netG.endswith('blocks'):
         n_blocks = int(re.findall(r'\d+', which_model_netG)[0])
-        netG = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, n_blocks=n_blocks, output_tanh=output_tanh, n_downsampling=n_downsampling)
+        netG = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=False, n_blocks=n_blocks, output_tanh=output_tanh, n_downsampling=n_downsampling)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % which_model_netG)
     return init_net(netG, init_type, init_gain, gpu_ids)
@@ -455,7 +455,7 @@ class ResnetGenerator_dec(nn.Module):
 class ResnetBlock(nn.Module):
     def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
         super(ResnetBlock, self).__init__()
-        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_bias)
+        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
 
     def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
         conv_block = []
