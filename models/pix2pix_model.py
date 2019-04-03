@@ -14,6 +14,7 @@ class Pix2PixModel(BaseModel):
     def modify_commandline_options(parser, is_train=True):
         parser.set_defaults(pool_size=0, no_lsgan=True, norm='instance')
         parser.set_defaults(dataset_mode='aligned')
+        parser.set_defaults(no_dropout=True)
         if is_train:
             parser.add_argument('--lambda_L1', type=float, default=100.0, help='weight for L1 loss')
 
@@ -69,13 +70,11 @@ class Pix2PixModel(BaseModel):
         # Fake
         # stop backprop to the generator by detaching fake_B
         fake_AB = self.fake_AB_pool.query(torch.cat((self.real_A, self.fake_B), 1))
-        print(1, fake_AB.detach().shape)
         pred_fake = self.netD(fake_AB.detach())
         self.loss_D_fake = self.criterionGAN(pred_fake, False)
 
         # Real
         real_AB = torch.cat((self.real_A, self.real_B), 1)
-        print(2, real_AB.shape)
         pred_real = self.netD(real_AB)
         self.loss_D_real = self.criterionGAN(pred_real, True)
 
@@ -87,7 +86,6 @@ class Pix2PixModel(BaseModel):
     def backward_G(self):
         # First, G(A) should fake the discriminator
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)
-        print(3, fake_AB.shape)
         pred_fake = self.netD(fake_AB)
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
 
@@ -103,13 +101,8 @@ class Pix2PixModel(BaseModel):
         # update D
         self.set_requires_grad(self.netD, True)
         self.optimizer_D.zero_grad()
-        print(3, list(self.netD.parameters())[0])
         self.backward_D()
-        print(33, list(self.netD.parameters())[0].grad)
-        print(33, list(self.netD.parameters())[0].grad)
         self.optimizer_D.step()
-        print(list(self.netD.parameters())[0])
-        exit(1)
 
         # update G
         self.set_requires_grad(self.netD, False)
