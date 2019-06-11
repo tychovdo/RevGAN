@@ -1,0 +1,38 @@
+BODY {
+	FONT-SIZE: small;
+  COLOR: black;
+  FONT-FAMILY: Georgia, "New Century Schoolbook", Times, serif; BACKGROUND-COLOR: white
+}
+IMG {
+	BORDER-TOP-STYLE: none;
+  BORDER-RIGHT-STYLE: none;
+  BORDER-LEFT-STYLE: none;
+  BORDER-BOTTOM-STYLE: none
+}
+H1 {
+	FONT-WEIGHT: normal
+}
+H2 {
+	MARGIN-TOP: 12px; FONT-WEIGHT: normal; MARGIN-BOTTOM: 0px
+}
+H3 {
+	MARGIN-TOP: 6px; FONT-SIZE: small; MARGIN-BOTTOM: 0px
+}
+P {
+	MARGIN-TOP: 0px; font-size: 15px
+}
+A {
+	FONT-WEIGHT: bolder; TEXT-DECORATION: none
+}
+A:link {
+	COLOR: #990000
+}
+A:visited {
+	COLOR: #666666
+}
+#content {
+	CLEAR: right
+}
+#main {
+	LINE-HEIGHT: 1.5; PADDING-TOP: 25px
+}
