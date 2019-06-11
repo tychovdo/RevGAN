@@ -1,0 +1,6 @@
+@inproceedings{vanderOuderaa2019revgan,
+  title={Reversible GANs for Memory-efficient Image-to-Image Translation},
+  author={van der Ouderaa, Tycho FA, Worrall, Daniel E},
+  booktitle={CVPR 2019},
+  year={2019}
+}
