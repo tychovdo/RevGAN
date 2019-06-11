@@ -46,7 +46,7 @@ A:visited {
 	TEXT-ALIGN: left;
 	max-width: 1000px;
 }
-#cite {
+.cite {
 	FONT-STYLE: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 	background-color: #f6f8fa;
     	border-radius: 3px;
