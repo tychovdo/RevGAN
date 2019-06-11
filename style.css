@@ -47,7 +47,7 @@ A:visited {
 	max-width: 1000px;
 }
 .cite {
-	FONT-STYLE: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 	background-color: #f6f8fa;
     	border-radius: 3px;
     	font-size: 85%;
