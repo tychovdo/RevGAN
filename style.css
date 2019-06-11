@@ -1,8 +1,11 @@
 BODY {
-	FONT-SIZE: small;
+  FONT-SIZE: small;
   COLOR: black;
-  FONT-FAMILY: Georgia, "New Century Schoolbook", Times, serif; BACKGROUND-COLOR: white
+  FONT-FAMILY: Georgia, "New Century Schoolbook", Times, serif;
+  BACKGROUND-COLOR: white;
+  TEXT-ALIGN: center;
 }
+
 IMG {
 	BORDER-TOP-STYLE: none;
   BORDER-RIGHT-STYLE: none;
@@ -34,5 +37,12 @@ A:visited {
 	CLEAR: right
 }
 #main {
-	LINE-HEIGHT: 1.5; PADDING-TOP: 25px
+	LINE-HEIGHT: 1.5;
+	PADDING-TOP: 25px;
+	MARGIN-LEFT: auto;
+	WIDTH: expression(document.body.clientWidth >
+1000? "1000px": "auto" );
+	MARGIN-RIGHT: auto;
+	TEXT-ALIGN: left;
+	max-width: 1000px;
 }
