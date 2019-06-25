@@ -23,10 +23,10 @@ def save_images(webpage, visuals, image_path, scale_range, aspect_ratio=1.0, wid
         save_path = os.path.join(image_dir, image_name)
         h, w, _ = im.shape
         if aspect_ratio > 1.0:
-            im = np.array(Image.fromarray(im).resize( (h, int(w * aspect_ratio)) ))
+            im = Image.fromarray(im).resize( (h, int(w * aspect_ratio)) )
         if aspect_ratio < 1.0:
-            im = np.array(Image.fromarray(im).resize( (int(h / aspect_ratio), w) ))
-        util.save_image(im, save_path)
+            im = Image.fromarray(im).resize( (int(h / aspect_ratio), w) )
+        im.save(save_path)
 
         ims.append(image_name)
         txts.append(label)
@@ -123,7 +123,8 @@ class Visualizer():
             for label, image in visuals.items():
                 image_numpy = util.tensor2im(image, self.scale_range)
                 img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
-                util.save_image(image_numpy, img_path)
+                im = Image.fromarray(image_numpy)
+                im.save(img_path)
             # update website
             webpage = html.HTML(self.web_dir, 'Experiment name = %s' % self.name, reflesh=1)
             for n in range(epoch, 0, -1):
