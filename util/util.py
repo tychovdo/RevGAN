@@ -48,11 +48,6 @@ def diagnose_network(net, name='network'):
     print(mean)
 
 
-def save_image(image_numpy, image_path):
-    image_pil = Image.fromarray(image_numpy)
-    image_pil.save(image_path)
-
-
 def print_numpy(x, val=True, shp=False):
     x = x.astype(np.float64)
     if shp:
