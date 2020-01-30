@@ -6,7 +6,7 @@ RevGAN implementation in PyTorch. We extend the Pix2pix and CycleGAN framework b
 <br>
 Reversible GANs for Memory-efficient Image-to-Image Translation <br>
 Tycho F.A. van der Ouderaa, Daniel E. Worral <br>
-University of Amsterdam, arXiv pre-print, 2019 <br>
+University of Amsterdam, CVPR 2019 <br>
 <br>
 
 ```
